@@ -476,7 +476,7 @@ function WriteHighchart()
 	log("Writing highchart table...")
 
 	local highchart = io.open([[highchart_output.js]], "w")
-	util.write_json(highchart, chart)
+	util.WriteJson(highchart, chart)
 	highchart:close()
 
 	log("Rendering with phantomjs...")

@@ -19,9 +19,20 @@ module("simc.util")
 
 log = _G.print
 
-local _isWindows = os.getenv("OS") and os.getenv("OS"):find("Windows")
+local _OS = "Unknown"
+if os.getenv("OS") and os.getenv("OS"):lower():find("windows") then	 					-- Windows detection
+	_OS = "windows"
+else
+	local osType = os.getenv("OSTYPE")
+	if osType and osType:find("darwin") then
+		_OS = "MacOS"
+	elseif osType then
+		_OS = "Linux-" .. osType
+	end
+end																				-- Leave it unknown otherwise
+
 function IsWindows()
-	return _isWindows
+	return _OS:find("windows")
 end
 
 -- Override this if you want to change cache
@@ -198,7 +209,6 @@ function get_item_info(item, locale, context)
 end
 
 function get_item_info_wowhead(item)
---$.extend(g_items[122601], {"armor":0,"classs":4,"flags2":8192,"id":122601,"level":640,"name":"3Stone of Wind","namedesc":"Stage 1 of 4","reqlevel":91,"slot":12,"slotbak":12,"source":[1],"sourcemore":[{"c":11,"icon":"achievement_dungeon_utgardekeep","n":"Stone of Wind","s":171,"t":6,"ti":181647}],"subclass":-4,"jsonequip":{"quality":4,"armor":0,"classs":4,"flags2":8192,"id":122601,"level":640,"name":"3Stone of Wind","namedesc":"Stage 1 of 4","reqlevel":91,"slot":12,"slotbak":12,"source":[1],"sourcemore":[{"c":11,"icon":"achievement_dungeon_utgardekeep","n":"Stone of Wind","s":171,"t":6,"ti":181647}],"subclass":-4,"reqlevel":91,"reqskill":171,"reqskillrank":1,"sellprice":178494,"slotbak":12,"versatility":175,"statsInfo":[]}});
 	log("Fetching item info from wowhead...")
 	local itemID = item
 	local bonusID
@@ -311,7 +321,7 @@ function new_rawcode(code)
 	return {___israwcode = true, data = code}
 end
 
-function write_json(file, json)
+function WriteJson(file, json)
 	local subsequent = false
 	if type(json) == "string" then
 		file:write(string.format("%q", json))
@@ -328,7 +338,7 @@ function write_json(file, json)
 			if subsequent then
 				file:write(", ")
 			end
-			write_json(file, value)
+			WriteJson(file, value)
 			subsequent = true
 		end
 		file:write("]")
@@ -341,9 +351,9 @@ function write_json(file, json)
 			if type(key) ~= "string" then
 				error("Error parsing json: invalid key " .. tostring(key))
 			end
-			write_json(file, key)
+			WriteJson(file, key)
 			file:write(": ")
-			write_json(file, value)
+			WriteJson(file, value)
 			subsequent = true
 		end
 		file:write("}")

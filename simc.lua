@@ -24,11 +24,11 @@ else
 	baseProfilePath = simcRootPath .. [[/profiles]]
 
 	-- os.clock check for some lua binary on Linux OS: CentOS / RedHat etc.
-	print("Detecting os.clock() bug ...")
+	-- log("Detecting os.clock() bug ...")
 	os.execute("sleep 1")
 	if os.clock() == 0 then
 		os.clock = os.time
-		print("Replaced os.clock() as os.time()")
+		-- log("Replaced os.clock() as os.time()")
 	end
 end
 
