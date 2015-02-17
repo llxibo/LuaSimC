@@ -101,7 +101,7 @@ function GenerateItemProfile(item)
 	local profile = {}
 	-- print(item.enchant)
 	assert(item.id, "Error generating item profile: item has no itemID")
-	local name = util.get_item_info(item, "enUS").name
+	local name = util.GetItemInfo(item, "enUS").name
 	assert(name, "Failed fetching name for item " .. item.id)
 	local token = ParseItemToken(name)
 	table.insert(profile, token)
