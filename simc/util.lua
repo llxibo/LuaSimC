@@ -295,7 +295,7 @@ function SaveSession(session, forceSave)
 	local fileName = "Sessions/" .. session.name .. ".lua"
 	local file = io.open(fileName, "w")
 	if not file then
-		os.execute("md Sessions")
+		os.execute("mkdir Sessions")
 		file = io.open(fileName, "w")
 	end
 	assert(file, "Failed saving session: could not open file")
