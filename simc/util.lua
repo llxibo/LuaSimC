@@ -14,11 +14,14 @@ local type = type
 local tonumber = tonumber
 local tostring = tostring
 local pcall = pcall
-local dofile = dofile
+local loadfile = loadfile
+local setfenv = setfenv
+local _VERSION = _VERSION
 module("simc.util")
 
 log = _G.print
 
+-- OS Detection
 local _OS = "Unknown"
 if os.getenv("OS") and os.getenv("OS"):lower():find("windows") then	 					-- Windows detection
 	_OS = "windows"
@@ -34,6 +37,9 @@ end																				-- Leave it unknown otherwise
 function IsWindows()
 	return _OS:find("windows")
 end
+
+-- Lua version detection
+_LUA_VERSION = _VERSION:match("Lua ([%d%.]+)")
 
 -- Override this if you want to change cache
 HttpCacheFilePath = IsWindows() and [[D:/httpCache.lua]] or "httpCache.lua"
@@ -88,9 +94,14 @@ function HttpRequestCached(url, retry)
 	if not http_cache then
 		log("Loading http cache...")
 		http_cache = {}
-		pcall(dofile, HttpCacheFilePath)
+		assert(HttpRequestCached, "HttpRequestCached not defined")
+		local func = loadfile(HttpCacheFilePath)
+		if func then
+			setfenv(func, _M)	-- FileAddHttpCache is a member of this module
+			local ok = pcall(func, HttpCacheFilePath)
+			log("Finished loading cache: %s", ok)
+		end
 		http_cache_file = io.open(HttpCacheFilePath, "a+")
-		log("Finished loading cache.")
 	end
 	if http_cache[url] then
 		return http_cache[url]
@@ -113,6 +124,7 @@ function AddHttpCache(url, data)
 	http_cache[url] = data
 	if http_cache_file then
 		http_cache_file:write("FileAddHttpCache(", string.format("%q", url), ", ", string.format("%q", data), ")", "\n")
+		http_cache_file:flush()	-- MacOS requires flush
 	end
 end
 
