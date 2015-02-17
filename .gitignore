@@ -2,7 +2,9 @@
 httpCache.lua
 Trinket_gen_output.txt
 Trinket_gen_output.html
+highchart_output.js
 Sessions/
+Reports/
 
 # Windows image file caches
 Thumbs.db
