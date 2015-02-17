@@ -19,8 +19,6 @@ local setfenv = setfenv
 local _VERSION = _VERSION
 module("simc.util")
 
-log = _G.print
-
 -- OS Detection
 local _OS = "Unknown"
 if os.getenv("OS") and os.getenv("OS"):lower():find("windows") then	 					-- Windows detection
@@ -41,15 +39,18 @@ end
 -- Lua version detection
 _LUA_VERSION = _VERSION:match("Lua ([%d%.]+)")
 
+-- Override this if you want another sink for log
+print = _G.print
+
 -- Override this if you want to change cache
 HttpCacheFilePath = IsWindows() and [[D:/httpCache.lua]] or "httpCache.lua"
 
 function printf( msg, ... )
 	local message = msg:format( ... )
 	if __is_console then
-		log( message .. string.rep(" ", 119 - message:len()) )
+		print( message .. string.rep(" ", 119 - message:len()) )
 	else
-		log( message )
+		print( message )
 	end
 	io.stdout:flush()
 	return message
@@ -92,14 +93,14 @@ local http_cache
 local http_cache_file
 function HttpRequestCached(url, retry)
 	if not http_cache then
-		log("Loading http cache...")
+		printf("Loading http cache...")
 		http_cache = {}
 		assert(HttpRequestCached, "HttpRequestCached not defined")
 		local func = loadfile(HttpCacheFilePath)
 		if func then
 			setfenv(func, _M)	-- FileAddHttpCache is a member of this module
 			local ok = pcall(func, HttpCacheFilePath)
-			log("Finished loading cache: %s", ok)
+			printf("Finished loading cache: %s", tostring(ok))
 		end
 		http_cache_file = io.open(HttpCacheFilePath, "a+")
 	end
@@ -227,7 +228,7 @@ function GetItemInfo(item, locale, context)
 end
 
 function GetItemInfoWowhead(item)
-	log("Fetching item info from wowhead...")
+	printf("Fetching item info from wowhead...")
 	local itemID = item
 	local bonusID
 	if type(item) == "table" then

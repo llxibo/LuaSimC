@@ -10,7 +10,7 @@ local tonumber = tonumber
 module("simc")
 local util = _G.require("simc.util")
 
-log = _G.print
+log = util.printf
 
 if util.IsWindows() then
 	simcRootPath = [[E:/simulationcraft]]
@@ -237,7 +237,7 @@ function SimulateChar(char, globals, iterations, result)
 	-- The output of simc could be read by io.popen("simc.exe")
 	-- However, it requires extra logic to handle progress bar
 	local simcStartTime = os.clock()
-	log("Executing", profile)
+	log("Executing %s", profile)
 	os.execute(simcPath .. " " .. profile)
 	local simcElapsed = os.clock() - simcStartTime
 
@@ -274,7 +274,7 @@ end
 function GetSimCVersion(isPTR)
 	local report = {}
 	local profile = isPTR and "ptr=1" or ""
-	local simcOutput = util.ReadExecute(([["%s" %s]]):format(simcPath, profile))
+	local simcOutput = util.ReadExecute(([[%s %s]]):format(simcPath, profile))
 	report.version, report.major, report.minor,
 		report.clientDesc, report.clientVer, report.clientType, report.clientBuild = simcOutput:match(
 			"SimulationCraft ((%d+)%-(%d+)) for World of Warcraft (([%d%.]+) (.-) %(build level (%d+)%))"

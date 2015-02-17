@@ -1,7 +1,7 @@
 local simc = require("simc")
 local util = require("simc.util")
 
-local log = print
+local log = util.printf
 
 local base_profiles = {
 	{ baseChar = "Tier17H/Death_Knight_Frost_1h_T17H",	mainStat = "Str",	bestGem = "50mastery", title = "死亡骑士 - 冰霜 - 双持",	class_icon = "320", },
@@ -474,6 +474,7 @@ end
 
 ------------------------------------------------------------------------------
 
+os.execute("mkdir Reports")
 os.remove("Reports/Report.bbcode")
 
 for session_index, base_profile in ipairs(base_profiles) do
@@ -570,7 +571,7 @@ for session_index, base_profile in ipairs(base_profiles) do
 			trinket.variesGem = util.CopyTable(trinket.varies)
 			assert(session.bestGem, "Best gem not specified")
 			for index, vary in ipairs(trinket.variesGem) do
-				print("Processing vary", vary)
+				-- print("Processing vary", vary)
 				vary.trinket.enchant = session.bestGem
 				local char = {
 					baseChar = session.baseChar,
@@ -583,7 +584,7 @@ for session_index, base_profile in ipairs(base_profiles) do
 		end
 		print(trinket.variesGem, trinket.varies)
 		for index, vary in ipairs(trinket.varies) do
-			print("Processing vary with gem", vary)
+			-- print("Processing vary with gem", vary)
 			-- assert(not vary.result)
 			local char = {
 				baseChar = session.baseChar,
