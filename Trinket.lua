@@ -187,21 +187,10 @@ function GetTrinkets()
 	}
 end
 
-function CopyTable(t)
-	if type(t) ~= "table" then
-		return t
-	end
-	local copy = {}
-	for key, value in pairs(t) do
-		copy[CopyTable(key)] = CopyTable(value)
-	end
-	return copy
-end
-
 function AssertTrinket(info, name)
 	-- print("Asserting trinket", print_table(info))
-	local item = get_item_info(info)
-	local itemEnglish = get_item_info(info, "enUS")
+	local item = util.GetItemInfo(info)
+	local itemEnglish = util.GetItemInfo(info, "enUS")
 	assert(item.name == name or itemEnglish.name == name, itemEnglish.name)
 end
 
@@ -256,7 +245,7 @@ function WriteBBCode()
 		bbcode:write("[tr]")
 
 		local lastVary = trinket.varies[#trinket.varies]
-		bbcode:write("[td]", util.get_item_bbcode(lastVary.trinket.id), "[/td]")
+		bbcode:write("[td]", util.GetItemBBCode(lastVary.trinket.id), "[/td]")
 
 		for _, ilvl in ipairs(ilvlList) do
 			bbcode:write("[td]")
@@ -401,7 +390,7 @@ function WriteHighchart()
 		yAxis = {
 			title = { text = "评分", },
 		},
-		series = util.new_array(),
+		series = util.NewArray(),
 		plotOptions = {
 			spline = {
 				marker = { symbol = "circle" },
@@ -432,10 +421,10 @@ function WriteHighchart()
 		local color = colorTable[((index - 1) % #colorTable) + 1]
 		assert(color, "Color not exist " .. index)
 
-		local trinketData = util.new_array()
-		local trinketIcon = util.get_item_info(trinket.varies[1].trinket).icon
+		local trinketData = util.NewArray()
+		local trinketIcon = util.GetItemInfo(trinket.varies[1].trinket).icon
 		for varyIndex, vary in ipairs(trinket.varies) do
-			local icon = util.get_item_info(vary.trinket).icon
+			local icon = util.GetItemInfo(vary.trinket).icon
 
 			local dps, err = simc.GetResultDPS(vary.result)
 			local rating = dps - baseDPS
@@ -539,7 +528,7 @@ for session_index, base_profile in ipairs(base_profiles) do
 		local template = templates[trinket.template]
 		if template then
 			for key, value in pairs(template) do
-				trinket[key] = CopyTable(value)
+				trinket[key] = util.CopyTable(value)
 			end
 			trinket.template = nil
 		end
@@ -578,7 +567,7 @@ for session_index, base_profile in ipairs(base_profiles) do
 		print("Processing trinket", trinket.name)
 		-- Copy if varies needs to be expanded as (gem) and (no gem)
 		if trinket.has_gem and not trinket.variesGem then
-			trinket.variesGem = CopyTable(trinket.varies)
+			trinket.variesGem = util.CopyTable(trinket.varies)
 			assert(session.bestGem, "Best gem not specified")
 			for index, vary in ipairs(trinket.variesGem) do
 				print("Processing vary", vary)

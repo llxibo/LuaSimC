@@ -49,9 +49,15 @@ function printf( msg, ... )
 	return message
 end
 
-function printf_t( t, msg, ... )
-	local message = printf(msg, ...)
-	table.insert(t, message)
+function CopyTable(t)
+	if type(t) ~= "table" then
+		return t
+	end
+	local copy = {}
+	for key, value in pairs(t) do
+		copy[CopyTable(key)] = CopyTable(value)
+	end
+	return copy
 end
 
 function ParseJson( json )
@@ -142,12 +148,12 @@ function WriteTable( file, table, indent )
 	end
 end
 
-function print_table(table, name)
-	dump_table(io.stdout, table, name)
+function PrintTable(table, name)
+	DumpTable(io.stdout, table, name)
 	io.stdout:flush()
 end
 
-function dump_table(file, table, name)
+function DumpTable(file, table, name)
 	local name = name or "value"
 	file:write(name, " = {\n")
 	WriteTable(file, table)
@@ -155,7 +161,7 @@ function dump_table(file, table, name)
 	file:flush()
 end
 
-function find_in_list(list, item)
+function FindInList(list, item)
 	for index, value in ipairs(list) do
 		if value == item then
 			return index
@@ -164,7 +170,7 @@ function find_in_list(list, item)
 end
 
 local item_cache = {}
-function get_item_info(item, locale, context)
+function GetItemInfo(item, locale, context)
 	local locale_query = locale and ("?locale=" .. locale) or ""
 
 	local itemID = item
@@ -176,30 +182,30 @@ function get_item_info(item, locale, context)
 	end
 	itemID = item_cache[itemID] or itemID
 	context = context and "/" .. context or ""
-	if not tonumber(itemID) then print_table(item) end
+	if not tonumber(itemID) then PrintTable(item) end
 	assert(tonumber(itemID), "Error fetching item info: itemID must be a number")
 
 	local queryURL = "http://www.battlenet.com.cn/api/wow/item/" .. itemID .. context .. locale_query
 	local json = HttpRequestJson(queryURL)
 	if not json.name and json.status == "nok" then
 		if json.reason:find("unable to get item information") then
-			return get_item_info_wowhead(item)
+			return GetItemInfoWowhead(item)
 		end
 		printf("Error fetching item info: %s", json.reason)
 		http_cache[queryURL] = nil
-		return get_item_info(item, locale)
+		return GetItemInfo(item, locale)
 	end
 	if not json.name and json.availableContexts and #json.availableContexts > 0 then
 		local jsonWithContext
 		for index, context in ipairs(json.availableContexts) do
-			jsonWithContext = get_item_info(item, locale, context)
-			if find_in_list(jsonWithContext.bonusLists, bonusID) then
+			jsonWithContext = GetItemInfo(item, locale, context)
+			if FindInList(jsonWithContext.bonusLists, bonusID) then
 				return jsonWithContext
 			end
 		end
 		-- print("Error finding info for item: cannot match any context with requested bonus id")
-		-- print_table(json)
-		-- print_table(jsonWithContext)
+		-- PrintTable(json)
+		-- PrintTable(jsonWithContext)
 		return jsonWithContext
 	end
 	if json.name and json.id then
@@ -208,7 +214,7 @@ function get_item_info(item, locale, context)
 	return json
 end
 
-function get_item_info_wowhead(item)
+function GetItemInfoWowhead(item)
 	log("Fetching item info from wowhead...")
 	local itemID = item
 	local bonusID
@@ -300,24 +306,24 @@ function SaveSession(session, forceSave)
 	prevSaveSession = os.time()
 end
 
-function get_item_bbcode(id)
-	local info = get_item_info(id)
+function GetItemBBCode(id)
+	local info = GetItemInfo(id)
 	if not info then
 		return "[item=id]物品名不可用[/item]"
 	end
 	if not info.name or not info.icon then
-		print_table(info)
+		PrintTable(info)
 	end
 	return ("[img]http://img.db.178.com/wow/icons/s/%s.jpg[/img][item=%d]%s[/item]"):format(
 		info.icon, id, info.name
 	)
 end
 
-function new_array()
+function NewArray()
 	return {___isarray = true}
 end
 
-function new_rawcode(code)
+function NewRawcode(code)
 	return {___israwcode = true, data = code}
 end
 
