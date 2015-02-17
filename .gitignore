@@ -1,3 +1,9 @@
+# Cache and temp file
+httpCache.lua
+Trinket_gen_output.txt
+Trinket_gen_output.html
+Sessions/
+
 # Windows image file caches
 Thumbs.db
 ehthumbs.db
@@ -26,7 +32,8 @@ $RECYCLE.BIN/
 .LSOverride
 
 # Icon must end with two \r
-Icon
+Icon
+
 
 # Thumbnails
 ._*
