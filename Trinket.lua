@@ -194,7 +194,7 @@ function AssertTrinket(info, name)
 	assert(item.name == name or itemEnglish.name == name, itemEnglish.name)
 end
 
-function WriteBBCode()
+function WriteBBCode(session)
 	local bbcode = io.open([[Reports/Report.bbcode]], "a+")
 	local version = simc.GetSimCVersion(session.ptr)
 
@@ -304,7 +304,7 @@ local colorTable = {
 	"#b5ca92",
 }
 
-function WriteHighchart()
+function WriteHighchart(session)
 	log("Generating highchart table...")
 	local version = simc.GetSimCVersion(session.ptr)
 	local chart = {
@@ -472,14 +472,8 @@ function WriteHighchart()
 	os.execute([[D:\phantomjs-1.9.8-windows\phantomjs.exe D:\phantomjs-1.9.8-windows\Highcharts-4.0.4\exporting-server\phantomjs\highcharts-convert.js -infile highchart_output.js -outfile Reports/']] .. session.global_index .. ". " .. session.name .. ".png'")
 end
 
-------------------------------------------------------------------------------
-
-os.execute("mkdir Reports")
-os.remove("Reports/Report.bbcode")
-
-for session_index, base_profile in ipairs(base_profiles) do
-
-	session = base_profile
+function RateTrinketGroup(session_index, base_profile)
+	local session = util.CopyTable(base_profile)
 
 	session.trinkets = {}
 	for index, trinket in ipairs(GetTrinkets()) do
@@ -500,7 +494,6 @@ for session_index, base_profile in ipairs(base_profiles) do
 	session.global_index = session_index
 	session.min_ilvl = 630
 	session.iterations = 100
-	-- session.ptr = 1
 
 	local globals = {
 		default_actions = 1,
@@ -508,7 +501,6 @@ for session_index, base_profile in ipairs(base_profiles) do
 		-- threads = -2,
 	}
 
-	-- session.log_file = io.open([[Sessions/]] .. session.name .. [[.log]], "a+")
 	log("=== Starting process for %s ===", session.name)
 
 	log("Generating baseline char")
@@ -579,7 +571,7 @@ for session_index, base_profile in ipairs(base_profiles) do
 				vary.result = simc.SimulateChar(char, globals, session.iterations, vary.result)
 			end
 		end
-		print(trinket.variesGem, trinket.varies)
+		-- Default varies (no gem)
 		for index, vary in ipairs(trinket.varies) do
 			local char = {
 				baseChar = session.baseChar,
@@ -594,8 +586,15 @@ for session_index, base_profile in ipairs(base_profiles) do
 	end
 
 	log("Writing output files ...")
-	WriteBBCode()
-	WriteHighchart()
+	WriteBBCode(session)
+	WriteHighchart(session)
 
 	log("===Process finished===")
+end
+
+os.execute("mkdir Reports")
+os.remove("Reports/Report.bbcode")
+
+for session_index, base_profile in ipairs(base_profiles) do
+	RateTrinketGroup(session_index, base_profile)
 end
