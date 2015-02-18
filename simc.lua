@@ -7,32 +7,11 @@ local pairs = pairs
 local ipairs = ipairs
 local type = type
 local tonumber = tonumber
+local config require("simc.config")
+local util = require("simc.util")
 module("simc")
-local util = _G.require("simc.util")
 
 log = util.printf
-
-if util.IsWindows() then
-	simcRootPath = [[E:/simulationcraft]]
-	simcPath = simcRootPath .. [[/simc64]]
-	baseProfilePath = simcRootPath .. [[/profiles]]
-
-	os.execute("chcp 65001")
-else
-	simcRootPath = [[~/Documents/simulationcraft]]
-	simcPath = simcRootPath .. [[/engine/simc]]
-	baseProfilePath = simcRootPath .. [[/profiles]]
-
-	-- os.clock check for some lua binary on Linux OS: CentOS / RedHat etc.
-	-- log("Detecting os.clock() bug ...")
-	os.execute("sleep 1")
-	if os.clock() == 0 then
-		os.clock = os.time
-		-- log("Replaced os.clock() as os.time()")
-	end
-end
-
-local simcProfileDelimeter = " "
 
 local itemKeyList = {
 	id = true,
@@ -120,7 +99,7 @@ function GenerateCharProfile(char)
 	local profile = {}
 	assert(char.baseChar or char.class, "Error generating char profile: No baseChar or class specified")
 	if char.baseChar then
-		table.insert(profile, ("%s/%s.simc"):format(baseProfilePath, char.baseChar))
+		table.insert(profile, ("%s/%s.simc"):format(config.baseProfilePath, char.baseChar))
 	elseif char.class then
 		AddProfileKey(profile, char.class, "dummy" .. char.class)				-- hunter=dummyhunter
 	else
@@ -135,7 +114,7 @@ function GenerateCharProfile(char)
 			AddProfileKey(profile, key, value)
 		end
 	end
-	return table.concat(profile, simcProfileDelimeter)
+	return table.concat(profile, config.simcProfileDelimeter)
 end
 
 -- Generate a SimC profile from tables
@@ -155,7 +134,7 @@ function GenerateProfile(chars, globals, overrides)
 	for key, value in pairs(overrides) do
 		AddProfileKey(profile, key, value)
 	end
-	return table.concat(profile, simcProfileDelimeter)
+	return table.concat(profile, config.simcProfileDelimeter)
 end
 
 -- Count total iterations of a result table
@@ -238,7 +217,7 @@ function SimulateChar(char, globals, iterations, result)
 	-- However, it requires extra logic to handle progress bar
 	local simcStartTime = os.clock()
 	log("Executing %s", profile)
-	os.execute(simcPath .. " " .. profile)
+	os.execute(config.simcPath .. " " .. profile)
 	local simcElapsed = os.clock() - simcStartTime
 
 
@@ -274,13 +253,13 @@ end
 function GetSimCVersion(isPTR)
 	local report = {}
 	local profile = isPTR and "ptr=1" or ""
-	local simcOutput = util.ReadExecute(([[%s %s]]):format(simcPath, profile))
+	local simcOutput = util.ReadExecute(([[%s %s]]):format(config.simcPath, profile))
 	report.version, report.major, report.minor,
 		report.clientDesc, report.clientVer, report.clientType, report.clientBuild = simcOutput:match(
 			"SimulationCraft ((%d+)%-(%d+)) for World of Warcraft (([%d%.]+) (.-) %(build level (%d+)%))"
 		)
 	report.hash, report.date = util.ReadExecute(
-		([[git -C %s log -1 --format="%%h,%%cd"]]):format(simcRootPath)):match("^(%x+),([^\n]+)")
+		([[git -C %s log -1 --format="%%h,%%cd"]]):format(config.simcRootPath)):match("^(%x+),([^\n]+)")
 	report.versionFull = report.version .. "-" .. report.hash
 	assert(report.clientDesc)
 	return report

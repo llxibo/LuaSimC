@@ -16,34 +16,11 @@ local tostring = tostring
 local pcall = pcall
 local loadfile = loadfile
 local setfenv = setfenv
-local _VERSION = _VERSION
+local config = require("simc.config")
 module("simc.util")
-
--- OS Detection
-local _OS = "Unknown"
-if os.getenv("OS") and os.getenv("OS"):lower():find("windows") then	 					-- Windows detection
-	_OS = "windows"
-else
-	local osType = os.getenv("OSTYPE")
-	if osType and osType:find("darwin") then
-		_OS = "MacOS"
-	elseif osType then
-		_OS = "Linux-" .. osType
-	end
-end																				-- Leave it unknown otherwise
-
-function IsWindows()
-	return _OS:find("windows")
-end
-
--- Lua version detection
-_LUA_VERSION = _VERSION:match("Lua ([%d%.]+)")
 
 -- Override this if you want another sink for log
 print = _G.print
-
--- Override this if you want to change cache
-HttpCacheFilePath = IsWindows() and [[D:/httpCache.lua]] or "httpCache.lua"
 
 function printf( msg, ... )
 	local message = msg:format( ... )
@@ -67,13 +44,10 @@ function CopyTable(t)
 	return copy
 end
 
-function ParseJson( json )
+function ParseJson(json)
 	local lua = "return " .. json:gsub("%[", "{"):gsub("%]", "}"):gsub([["(%w-)":]], [[["%1"]=]])--:gsub([[(%w-):]], [[["%1"]=]])
 	local func, err = loadstring(lua)
-	if not func then
-		print(lua)
-		return error(err)
-	end
+	assert(func, "Error parsing json: " .. tostring(err))
 	return func()
 end
 
@@ -96,13 +70,13 @@ function HttpRequestCached(url, retry)
 		printf("Loading http cache...")
 		http_cache = {}
 		assert(HttpRequestCached, "HttpRequestCached not defined")
-		local func = loadfile(HttpCacheFilePath)
+		local func = loadfile(config.HttpCacheFilePath)
 		if func then
 			setfenv(func, _M)	-- FileAddHttpCache is a member of this module
-			local ok = pcall(func, HttpCacheFilePath)
+			local ok = pcall(func, config.HttpCacheFilePath)
 			printf("Finished loading cache: %s", tostring(ok))
 		end
-		http_cache_file = io.open(HttpCacheFilePath, "a+")
+		http_cache_file = io.open(config.HttpCacheFilePath, "a+")
 	end
 	if http_cache[url] then
 		return http_cache[url]
@@ -184,7 +158,7 @@ end
 
 local item_cache = {}
 function GetItemInfo(item, locale, context)
-	local locale_query = locale and ("?locale=" .. locale) or ""
+	local localeSuffix = locale and ("?locale=" .. locale) or ""
 
 	local itemID = item
 	local bonusID
@@ -198,7 +172,7 @@ function GetItemInfo(item, locale, context)
 	if not tonumber(itemID) then PrintTable(item) end
 	assert(tonumber(itemID), "Error fetching item info: itemID must be a number")
 
-	local queryURL = "http://www.battlenet.com.cn/api/wow/item/" .. itemID .. context .. locale_query
+	local queryURL = "http://www.battlenet.com.cn/api/wow/item/" .. itemID .. context .. localeSuffix
 	local json = HttpRequestJson(queryURL)
 	if not json.name and json.status == "nok" then
 		if json.reason:find("unable to get item information") then
