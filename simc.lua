@@ -7,7 +7,7 @@ local pairs = pairs
 local ipairs = ipairs
 local type = type
 local tonumber = tonumber
-local config require("simc.config")
+local config = require("simc.config")
 local util = require("simc.util")
 module("simc")
 
@@ -78,7 +78,6 @@ end
 -- Generate a line of item from table
 function GenerateItemProfile(item)
 	local profile = {}
-	-- print(item.enchant)
 	assert(item.id, "Error generating item profile: item has no itemID")
 	local name = util.GetItemInfo(item, "enUS").name
 	assert(name, "Failed fetching name for item " .. item.id)
@@ -197,16 +196,13 @@ function SimulateChar(char, globals, iterations, result)
 	local requiredIterations = iterations - prevIterations
 	if requiredIterations <= 0 then
 		log("Skipping simulation: expecting %d, got %d", iterations, prevIterations)
-		-- print_table(char)
-		-- print(GetResultDPS(result))
-		-- error("Stopping")
 		return result
 	end
 
 	local overrides = {
 		name = util.GetRandomName(),
-		output = "Trinket_gen_output.txt",
-		html = "Trinket_gen_output.html",
+		output = config.simcOutputFile,
+		html = config.simcOutputHTML,
 		iterations = requiredIterations,
 	}
 	local profile = GenerateProfile(char, globals, overrides)
@@ -215,11 +211,10 @@ function SimulateChar(char, globals, iterations, result)
 	result.outputs = result.outputs or {}
 	-- The output of simc could be read by io.popen("simc.exe")
 	-- However, it requires extra logic to handle progress bar
-	local simcStartTime = os.clock()
+	-- local simcStartTime = os.clock()
 	log("Executing %s", profile)
 	os.execute(config.simcPath .. " " .. profile)
-	local simcElapsed = os.clock() - simcStartTime
-
+	-- local simcElapsed = os.clock() - simcStartTime
 
 	-- So we dump output into file and then process
 	local report = util.ReadFile(overrides.output)

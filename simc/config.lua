@@ -4,7 +4,7 @@ module("simc.config")
 
 -- OS Detection
 local _OS = "Unknown"
-if os.getenv("OS") and os.getenv("OS"):lower():find("windows") then	 			-- Windows detection
+if os.getenv("OS") and os.getenv("OS"):lower():find("windows") then
 	_OS = "windows"
 else
 	local osType = os.getenv("OSTYPE")
@@ -13,18 +13,18 @@ else
 	elseif osType then
 		_OS = "Linux-" .. osType
 	end
-end																				-- Leave it unknown otherwise
+end											-- Leave it unknown otherwise
 
 function IsWindows()
 	return _OS:find("windows")
 end
 
 if IsWindows() then
-	simcRootPath = [[E:/simulationcraft]]
+	simcRootPath = [[E:/simulationcraft]]	-- Default location used by simc dev team
 	simcPath = simcRootPath .. [[/simc64]]
 	baseProfilePath = simcRootPath .. [[/profiles]]
 
-	os.execute("chcp 65001")													-- Switch to command line codepage to UTF-8
+	os.execute("chcp 65001")				-- Switch to command line codepage to UTF-8
 else
 	simcRootPath = [[~/Documents/simulationcraft]]
 	simcPath = simcRootPath .. [[/engine/simc]]
@@ -39,11 +39,15 @@ else
 	end
 end
 
+-- Delimeter for profile generation. Use "\n" for better readability, yet uncompatitable for execution.
 simcProfileDelimeter = " "
 
 -- Lua version detection
 _LUA_VERSION = _VERSION:match("Lua ([%d%.]+)")
 
--- Override this if you want to change cache
+-- Override this if you want to change cache file location
 HttpCacheFilePath = IsWindows() and [[D:/httpCache.lua]] or "httpCache.lua"
 
+-- SimC Output file name
+simcOutputFile = "LuaSimC_output.txt"
+-- simcOutputHTML = "LuaSimC_output.html"

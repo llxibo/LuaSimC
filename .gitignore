@@ -1,7 +1,7 @@
 # Cache and temp file
 httpCache.lua
-Trinket_gen_output.txt
-Trinket_gen_output.html
+LuaSimC_output.txt
+LuaSimC_output.html
 highchart_output.js
 Sessions/
 Reports/

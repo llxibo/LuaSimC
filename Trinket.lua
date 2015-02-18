@@ -522,7 +522,6 @@ for session_index, base_profile in ipairs(base_profiles) do
 
 	-- Sanity check, expand and filtering
 	for index, trinket in ipairs(session.trinkets) do
-		-- print_table(trinket, "Trinket")
 		assert(trinket.name, "Trinket must have a name")
 
 		-- Expand templates
@@ -571,7 +570,6 @@ for session_index, base_profile in ipairs(base_profiles) do
 			trinket.variesGem = util.CopyTable(trinket.varies)
 			assert(session.bestGem, "Best gem not specified")
 			for index, vary in ipairs(trinket.variesGem) do
-				-- print("Processing vary", vary)
 				vary.trinket.enchant = session.bestGem
 				local char = {
 					baseChar = session.baseChar,
@@ -579,13 +577,10 @@ for session_index, base_profile in ipairs(base_profiles) do
 					trinket2 = "",
 				}
 				vary.result = simc.SimulateChar(char, globals, session.iterations, vary.result)
-				-- error("Got variesGem here")
 			end
 		end
 		print(trinket.variesGem, trinket.varies)
 		for index, vary in ipairs(trinket.varies) do
-			-- print("Processing vary with gem", vary)
-			-- assert(not vary.result)
 			local char = {
 				baseChar = session.baseChar,
 				trinket1 = vary.trinket,
@@ -603,7 +598,4 @@ for session_index, base_profile in ipairs(base_profiles) do
 	WriteHighchart()
 
 	log("===Process finished===")
-	-- if session.log_file then
-	-- 	session.log_file:close()
-	-- end
 end

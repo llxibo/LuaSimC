@@ -72,7 +72,7 @@ function HttpRequestCached(url, retry)
 		assert(HttpRequestCached, "HttpRequestCached not defined")
 		local func = loadfile(config.HttpCacheFilePath)
 		if func then
-			setfenv(func, _M)	-- FileAddHttpCache is a member of this module
+			setfenv(func, _M)	-- FileAddHttpCache is not in _G
 			local ok = pcall(func, config.HttpCacheFilePath)
 			printf("Finished loading cache: %s", tostring(ok))
 		end
@@ -165,7 +165,6 @@ function GetItemInfo(item, locale, context)
 	if type(item) == "table" then
 		itemID = item.id
 		bonusID = item.bonus_id
-		-- print("Using bonus_id", bonusID)
 	end
 	itemID = item_cache[itemID] or itemID
 	context = context and "/" .. context or ""
@@ -190,9 +189,6 @@ function GetItemInfo(item, locale, context)
 				return jsonWithContext
 			end
 		end
-		-- print("Error finding info for item: cannot match any context with requested bonus id")
-		-- PrintTable(json)
-		-- PrintTable(jsonWithContext)
 		return jsonWithContext
 	end
 	if json.name and json.id then
@@ -212,7 +208,6 @@ function GetItemInfoWowhead(item)
 	local bonusStr = bonusID and "&bonus=" .. bonusID or ""
 	local page = HttpRequestCached(string.format("http://www.wowhead.com/item=%d%s", itemID, bonusStr))
 	local info = page:match("%$%.extend%(g_items%[" .. itemID .. "%], (.-)%);")
-	-- error(info)
 	local itemJson = ParseJson(info)
 	itemJson.name = itemJson.sourcemore[1].n	-- Wowhead returns name like: "3Stone of Earth"
 	itemJson.icon = itemJson.sourcemore[1].icon
