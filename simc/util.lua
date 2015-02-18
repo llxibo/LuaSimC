@@ -271,7 +271,7 @@ function WriteTable( file, table, indent )
 end
 
 function SaveSession(session, forceSave)
-	if (not forceSave) and (prevSaveSession and os.time() - prevSaveSession < 10) then
+	if (not forceSave) and (prevSaveSession and os.time() - prevSaveSession < config.saveSessionInterval) then
 		return
 	end
 	local fileName = "Sessions/" .. session.name .. ".lua"

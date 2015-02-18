@@ -51,3 +51,7 @@ HttpCacheFilePath = IsWindows() and [[D:/httpCache.lua]] or "httpCache.lua"
 -- SimC Output file name
 simcOutputFile = "LuaSimC_output.txt"
 -- simcOutputHTML = "LuaSimC_output.html"
+
+-- Interval required for util.SaveSession() to perform an actural file write.
+-- interval = 0 will always save session whenever SaveSession() is called.
+saveSessionInterval = 10
