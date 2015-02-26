@@ -13,14 +13,14 @@ module("simc")
 
 log = util.printf
 
-local itemKeyList = {
+itemKeyList = {
 	id = true,
 	bonus_id = true,
 	-- upgrade = true,
 	enchant = true,
 }
 
-local charKeyList = {
+charKeyList = {
 	head = "item",
 	neck = "item",
 	shoulder = "item",
@@ -45,10 +45,24 @@ local charKeyList = {
 	class = false,
 }
 
-local globalsKeyList = {
+globalKeyList = {
 	strict_gcd_queue = true,
 	ptr = true,
 	default_actions = true,
+}
+
+classList = {
+	death_knight = true,
+	druid = true,
+	hunter = true,
+	mage = true,
+	monk = true,
+	paladin = true,
+	priest = true,
+	rogue = true,
+	shaman = true,
+	warlock = true,
+	warrior = true,
 }
 
 local tokenCache = {}
@@ -100,6 +114,7 @@ function GenerateCharProfile(char)
 	if char.baseChar then
 		table.insert(profile, ("%s/%s.simc"):format(config.baseProfilePath, char.baseChar))
 	elseif char.class then
+		assert(classList[char.class], "Error generating char profile: Invalid class")
 		AddProfileKey(profile, char.class, "dummy" .. char.class)				-- hunter=dummyhunter
 	else
 		error("Error generating char profile: No base char or class specified")
@@ -127,7 +142,7 @@ function GenerateProfile(chars, globals, overrides)
 		table.insert(profile, GenerateCharProfile(chars))
 	end
 	for key, value in pairs(globals) do
-		assert(globalsKeyList[key], "Error generating global profile: Unknown option key " .. key)
+		assert(globalKeyList[key], "Error generating global profile: Unknown option key " .. key)
 		AddProfileKey(profile, key, value)
 	end
 	for key, value in pairs(overrides) do
