@@ -74,6 +74,7 @@ local templates = {
 		{ suffix = "S1",	ilvl = 640, bonus_id = 525,			},
 		{ suffix = "S2",	ilvl = 655, bonus_id = 526,			},
 		{ suffix = "S3",	ilvl = 670, bonus_id = 527,			},
+		{ suffix = "S4",	ilvl = 680, bonus_id = 593,			},
 	}, },
 	Follower_645 = { has_gem = true, varies = {
 		{ suffix = "N",		ilvl = 645, bonus_id = 0,			},
@@ -498,7 +499,9 @@ function RateTrinketGroup(session_index, base_profile)
 	local globals = {
 		default_actions = 1,
 		ptr = session.ptr,
-		-- threads = -2,
+		-- cache_items = 0,
+		-- item_db_source = "bcpapi"
+		threads = -2,
 	}
 
 	log("=== Starting process for %s ===", session.name)
@@ -528,7 +531,9 @@ function RateTrinketGroup(session_index, base_profile)
 		-- Filter low level varies
 		local variesFiltered = {}
 		for index, vary in ipairs(trinket.varies) do
-			if vary.ilvl >= session.min_ilvl and (session.ptr or not vary.ptr) then
+			if vary.ilvl >= session.min_ilvl
+			 -- and (session.ptr or not vary.ptr)
+			then
 				table.insert(variesFiltered, vary)
 			end
 		end
