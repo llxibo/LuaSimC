@@ -3,6 +3,7 @@ local io = require("io")
 local os = require("os")
 local table = require("table")
 local assert = assert
+local select = select
 local pairs = pairs
 local ipairs = ipairs
 local type = type
@@ -49,6 +50,13 @@ globalKeyList = {
 	strict_gcd_queue = true,
 	ptr = true,
 	default_actions = true,
+	threads = true,
+	iterations = true,
+	name = true,
+	output = true,
+	html = true,
+	cache_items = true,
+	item_db_source = true,
 }
 
 classList = {
@@ -132,7 +140,7 @@ function GenerateCharProfile(char)
 end
 
 -- Generate a SimC profile from tables
-function GenerateProfile(chars, globals, overrides)
+function GenerateProfile(chars, ...)
 	local profile = {}
 	if #chars > 0 then
 		for index, char in ipairs(chars) do
@@ -141,12 +149,11 @@ function GenerateProfile(chars, globals, overrides)
 	else
 		table.insert(profile, GenerateCharProfile(chars))
 	end
-	for key, value in pairs(globals) do
-		assert(globalKeyList[key], "Error generating global profile: Unknown option key " .. key)
-		AddProfileKey(profile, key, value)
-	end
-	for key, value in pairs(overrides) do
-		AddProfileKey(profile, key, value)
+	for index = 1, select("#", ...) do
+		for key, value in pairs(select(index, ...)) do
+			assert(globalKeyList[key], "Error generating global profile: Unknown option key " .. key)
+			AddProfileKey(profile, key, value)
+		end
 	end
 	return table.concat(profile, config.simcProfileDelimeter)
 end
