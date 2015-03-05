@@ -246,7 +246,11 @@ function WriteBBCode(session)
 		bbcode:write("[tr]")
 
 		local lastVary = trinket.varies[#trinket.varies]
-		bbcode:write("[td]", util.GetItemBBCode(lastVary.trinket.id), "[/td]")
+		bbcode:write("[td]", util.GetItemBBCode(lastVary.trinket.id))
+		if trinket.variesGem then
+			bbcode:write("[h][/h]\n", "[img]http://wowimg.zamimg.com/images/icons/socket-prismatic.gif[/img][color=silver]多彩插槽[/color]")
+		end
+		bbcode:write("[/td]")
 
 		for _, ilvl in ipairs(ilvlList) do
 			bbcode:write("[td]")
@@ -258,7 +262,8 @@ function WriteBBCode(session)
 				if trinket.variesGem then
 					assert(trinket.variesGem[varyIndex])
 					local dps, err = simc.GetResultDPS(trinket.variesGem[varyIndex].result)
-					bbcode:write(("\n[color=silver](%d)[/color]"):format(dps - baseDPS))
+					-- bbcode:write(("\n[color=silver](%d)[/color]"):format(dps - baseDPS))
+					bbcode:write(("[h][/h]\n[color=silver]%d[/color]"):format(dps - baseDPS))
 					maxErr = math.max(maxErr, err)
 				end
 			end
@@ -532,7 +537,7 @@ function RateTrinketGroup(session_index, base_profile)
 		local variesFiltered = {}
 		for index, vary in ipairs(trinket.varies) do
 			if vary.ilvl >= session.min_ilvl
-			 -- and (session.ptr or not vary.ptr)
+				-- and (session.ptr or not vary.ptr)
 			then
 				table.insert(variesFiltered, vary)
 			end
