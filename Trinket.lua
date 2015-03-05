@@ -494,6 +494,7 @@ function RateTrinketGroup(session_index, base_profile)
 	if func then
 		log("Loading session from file ...")
 		func()
+		session = _G["session"]
 	end
 
 	session.name = session_name
