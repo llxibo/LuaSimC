@@ -36,12 +36,12 @@ local base_profiles = {
 
 local templates = {
 	BRF = { has_gem = true, varies = {
-		{ suffix = "N",		ilvl = 665, bonus_id = 0,			},
-		{ suffix = "NWF",	ilvl = 671, bonus_id = 560,			},
-		{ suffix = "H",		ilvl = 680, bonus_id = 566,			},
-		{ suffix = "HWF",	ilvl = 686, bonus_id = "561/566",	},
-		{ suffix = "M",		ilvl = 695, bonus_id = 567,			},
-		{ suffix = "MWF",	ilvl = 701, bonus_id = "562/567",	},
+		{ suffix = "N",		ilvl = 665 + 5, bonus_id = 0,			},
+		{ suffix = "NWF",	ilvl = 671 + 5, bonus_id = 560,			},
+		{ suffix = "H",		ilvl = 680 + 5, bonus_id = 566,			},
+		{ suffix = "HWF",	ilvl = 686 + 5, bonus_id = "561/566",	},
+		{ suffix = "M",		ilvl = 695 + 5, bonus_id = 567,			},
+		{ suffix = "MWF",	ilvl = 701 + 5, bonus_id = "562/567",	},
 	}, },
 	Highmaul = { has_gem = true, varies = {
 		{ suffix = "N",		ilvl = 655, bonus_id = 0,			},
@@ -52,8 +52,8 @@ local templates = {
 		{ suffix = "MWF",	ilvl = 691, bonus_id = "562/567",	},
 	}, },
 	BRF_LFR = { has_gem = true, varies = {
-		{ suffix = "N",		ilvl = 650, bonus_id = 0,			},
-		{ suffix = "NWF",	ilvl = 656, bonus_id = 560,			},
+		{ suffix = "N",		ilvl = 650 + 5, bonus_id = 0,			},
+		{ suffix = "NWF",	ilvl = 656 + 5, bonus_id = 560,			},
 	}, },
 	Highmaul_LFR = { has_gem = true, varies = {
 		{ suffix = "N",		ilvl = 640, bonus_id = 0,			},
@@ -71,10 +71,10 @@ local templates = {
 		{ suffix = "N",		ilvl = 597,							},
 	}, },
 	Inscription = {	varies = {
-		{ suffix = "S1",	ilvl = 640, bonus_id = 525,			},
-		{ suffix = "S2",	ilvl = 655, bonus_id = 526,			},
-		{ suffix = "S3",	ilvl = 670, bonus_id = 527,			},
-		{ suffix = "S4",	ilvl = 680, bonus_id = 593,			},
+		{ suffix = "S1",	ilvl = 640 + 5, bonus_id = 525,			},
+		{ suffix = "S2",	ilvl = 655 + 5, bonus_id = 526,			},
+		{ suffix = "S3",	ilvl = 670 + 5, bonus_id = 527,			},
+		{ suffix = "S4",	ilvl = 680 + 5, bonus_id = 593,			},
 	}, },
 	Follower_645 = { has_gem = true, varies = {
 		{ suffix = "N",		ilvl = 645, bonus_id = 0,			},
@@ -93,10 +93,10 @@ local templates = {
 	}, },
 	Alchemy_Stones = { varies = {
 		{ suffix = "N",		ilvl = 620, id = 109262, 			},
-		{ suffix = "1",		ilvl = 640, id = 122601, 	name = "Stone of Wind", 		ptr = true, },
-		{ suffix = "2",		ilvl = 655, id = 122602, 	name = "Stone of the Earth", 	ptr = true, },
-		{ suffix = "3",		ilvl = 670, id = 122603, 	name = "Stone of the Waters", 	ptr = true, },
-		{ suffix = "4",		ilvl = 680, id = 122604, 	name = "Stone of Fire", 		ptr = true, },
+		{ suffix = "1",		ilvl = 640 + 5, id = 122601, 	name = "Stone of Wind", 		ptr = true, },
+		{ suffix = "2",		ilvl = 655 + 5, id = 122602, 	name = "Stone of the Earth", 	ptr = true, },
+		{ suffix = "3",		ilvl = 670 + 5, id = 122603, 	name = "Stone of the Waters", 	ptr = true, },
+		{ suffix = "4",		ilvl = 680 + 5, id = 122604, 	name = "Stone of Fire", 		ptr = true, },
 	}, },
 	PvP_Conquest = { varies = {
 		{ suffix = "N",		ilvl = 660, bonus_id = 0,			},
@@ -108,7 +108,7 @@ local templates = {
 }
 
 function GetTrinkets()
-	return {
+	local trinkets = {
 		-- Blackrock Foundry
 		{ id = 113931, name = "跳动的山脉之心",			template = "BRF",				mainStat = "Agi", },
 		{ id = 113985, name = "蜂鸣黑铁触发器",			template = "BRF",				mainStat = "Agi", },
@@ -186,6 +186,17 @@ function GetTrinkets()
 		{ id = 115160, name = "原祖争斗者的胜利徽记",	template = "PvP_Honor",			mainStat = "Int", },
 		{ id = 115521, name = "原祖争斗者的冥想徽章",	template = "PvP_Honor",			mainStat = "Agi/Str/Int", },
 	}
+	-- Expand templates
+	for index, trinket in ipairs(trinkets) do
+		local template = templates[trinket.template]
+		if template then
+			for key, value in pairs(template) do
+				trinket[key] = util.CopyTable(value)
+			end
+			trinket.template = nil
+		end
+	end
+	return trinkets
 end
 
 function AssertTrinket(info, name)
@@ -199,7 +210,7 @@ function WriteBBCode(session)
 	local bbcode = io.open([[Reports/Report.bbcode]], "a+")
 	local version = simc.GetSimCVersion(session.ptr)
 
-	bbcode:write("[img]http://img4.ngacn.cc/ngabbs/nga_classic/f/", session.class_icon, ".png[/img]")
+	bbcode:write("[img]http://img4.ngacn.cc/ngabbs/nga_classic/f/", session.classIcon, ".png[/img]")
 	bbcode:write("[size=140%][color=royalblue][b]", session.title, "[/b][/color]")
 	if session.ptr then
 		bbcode:write(" [color=red][b]", version.clientDesc, "[/b][/color]")
@@ -341,51 +352,43 @@ function WriteHighchart(session)
 					label = { text = "五人<br/>英雄", rotation = 0, },
 					color = "#3f3f3f",
 					width = 2,
-				},
-				{
+				}, {
 					value = 640,
 					label = { text = "悬锤堡<br/>团队随机", rotation = 0, },
 					color = "#3f3f3f",
 					width = 2,
-				},
-				{
+				}, {
 					value = 655,
 					label = { text = "悬锤堡<br/>普通", rotation = 0, },
 					color = "#3f3f3f",
 					width = 2,
-				},
-				{
+				}, {
 					value = 670,
 					label = { text = "悬锤堡<br/>英雄", rotation = 0, },
 					color = "#3f3f3f",
 					width = 2,
-				},
-				{
+				}, {
 					value = 685,
 					label = { text = "悬锤堡<br/>史诗", rotation = 0, },
 					color = "#3f3f3f",
 					width = 2,
-				},
-				{
-					value = 650,
+				}, {
+					value = 650 + 5,
 					label = { text = "黑石铸造厂<br/>团队随机", rotation = 0, },
 					color = "#3f3f3f",
 					width = 2,
-				},
-				{
-					value = 665,
+				}, {
+					value = 665 + 5,
 					label = { text = "黑石铸造厂<br/>普通", rotation = 0, },
 					color = "#3f3f3f",
 					width = 2,
-				},
-				{
-					value = 680,
+				}, {
+					value = 680 + 5,
 					label = { text = "黑石铸造厂<br/>英雄", rotation = 0, },
 					color = "#3f3f3f",
 					width = 2,
-				},
-				{
-					value = 695,
+				}, {
+					value = 695 + 5,
 					label = { text = "黑石铸造厂<br/>史诗", rotation = 0, },
 					color = "#3f3f3f",
 					width = 2,
@@ -500,6 +503,7 @@ function RateTrinketGroup(session_index, base_profile)
 	session.name = session_name
 	session.global_index = session_index
 	session.min_ilvl = 630
+	session.combination_min_lvl = 680
 	session.iterations = 100
 
 	local globals = {
@@ -524,15 +528,6 @@ function RateTrinketGroup(session_index, base_profile)
 	-- Sanity check, expand and filtering
 	for index, trinket in ipairs(session.trinkets) do
 		assert(trinket.name, "Trinket must have a name")
-
-		-- Expand templates
-		local template = templates[trinket.template]
-		if template then
-			for key, value in pairs(template) do
-				trinket[key] = util.CopyTable(value)
-			end
-			trinket.template = nil
-		end
 
 		-- Filter low level varies
 		local variesFiltered = {}
